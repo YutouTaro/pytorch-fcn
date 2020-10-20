@@ -59,18 +59,11 @@ def main():
     parser.add_argument('--resume', help='checkpoint path')
     # configurations (same configuration as original work)
     # https://github.com/shelhamer/fcn.berkeleyvision.org
-    parser.add_argument(
-        '--max-iteration', type=int, default=100000, help='max iteration'
-    )
-    parser.add_argument(
-        '--lr', type=float, default=1.0e-10, help='learning rate',
-    )
-    parser.add_argument(
-        '--weight-decay', type=float, default=0.0005, help='weight decay',
-    )
-    parser.add_argument(
-        '--momentum', type=float, default=0.99, help='momentum',
-    )
+    parser.add_argument('--max-iteration', type=int, default=100000, help='max iteration')
+    parser.add_argument('--lr', type=float, default=1.0e-10, help='learning rate',)
+    parser.add_argument('--weight-decay', type=float, default=0.0005, help='weight decay',)
+    parser.add_argument('--momentum', type=float, default=0.99, help='momentum',)
+    parser.add_argument('--root', type=str, default='~/data/datasets', help='the directory contains folder "VOC"')
     args = parser.parse_args()
 
     args.model = 'FCN32s'
@@ -92,7 +85,7 @@ def main():
 
     # 1. dataset
 
-    root = osp.expanduser('~/data/datasets')
+    root = osp.expanduser(args.root)
     kwargs = {'num_workers': 4, 'pin_memory': True} if cuda else {}
     train_loader = torch.utils.data.DataLoader(
         torchfcn.datasets.SBDClassSeg(root, split='train', transform=True),
