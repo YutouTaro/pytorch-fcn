@@ -10,6 +10,12 @@ import subprocess
 import torch
 import yaml
 
+import sys
+# from pathlib import Path
+from os.path import dirname as ospdir
+p = ospdir(ospdir(ospdir(osp.abspath(__file__))))
+# print(p)
+sys.path.append(p)
 import torchfcn
 
 
@@ -52,6 +58,8 @@ here = osp.dirname(osp.abspath(__file__))
 
 
 def main():
+    now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
+    outpath_default = osp.join(here, 'logs', now.strftime('%Y%m%d_%H%M%S'))
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -59,20 +67,26 @@ def main():
     parser.add_argument('--resume', help='checkpoint path')
     # configurations (same configuration as original work)
     # https://github.com/shelhamer/fcn.berkeleyvision.org
+    # TODO input model name from args
     parser.add_argument('--max-iteration', type=int, default=100000, help='max iteration')
     parser.add_argument('--lr', type=float, default=1.0e-10, help='learning rate',)
     parser.add_argument('--weight-decay', type=float, default=0.0005, help='weight decay',)
     parser.add_argument('--momentum', type=float, default=0.99, help='momentum',)
     parser.add_argument('--root', type=str, default='~/data/datasets', help='the directory contains folder "VOC"')
+    parser.add_argument('--out', type=str, default=outpath_default, help='directory to store output logs and weights')
     args = parser.parse_args()
 
     args.model = 'FCN32s'
     args.git_hash = git_hash()
 
-    now = datetime.datetime.now()
-    args.out = osp.join(here, 'logs', now.strftime('%Y%m%d_%H%M%S.%f'))
+    if not os.path.isdir(args.out):
+        os.makedirs(args.out)
+        print("\tdirctory {} created".format(args.out))
 
-    os.makedirs(args.out)
+    # now = datetime.datetime.now()
+    # args.out = osp.join(here, 'logs', now.strftime('%Y%m%d_%H%M%S.%f'))
+
+    # os.makedirs(args.out)
     with open(osp.join(args.out, 'config.yaml'), 'w') as f:
         yaml.safe_dump(args.__dict__, f, default_flow_style=False)
 
